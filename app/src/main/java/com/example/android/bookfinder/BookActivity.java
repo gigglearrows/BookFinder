@@ -1,22 +1,8 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.android.bookfinder;
 
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -27,6 +13,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +43,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     @BindView(R.id.list) ListView bookListView;
     @BindView(R.id.loading_indicator) View loadingIndicator;
     private BookAdapter adapter;
+    private String searchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,8 +122,15 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             // Show the loading indicator while new data is being fetched
             loadingIndicator.setVisibility(View.VISIBLE);
 
+            Bundle bundle = new Bundle();
+            if (!searchQuery.isEmpty()) {
+                bundle.putString("searchQuery", searchQuery);
+            } else {
+                bundle = null;
+            }
+
             // Restart the loader to requery as the query settings have been updated
-            getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
+            getLoaderManager().restartLoader(BOOK_LOADER_ID, bundle, this);
         }
     }
 
@@ -150,13 +146,20 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
                 getString(R.string.settings_order_by_default)
         );
 
+        String query;
+        if (bundle != null) {
+            query = bundle.getString("searchQuery");
+        } else {
+            query = "android";
+        }
+
         Uri baseUri = Uri.parse(BOOK_REQUEST_URL);
         Uri.Builder uriBuilder = baseUri.buildUpon();
 
-        uriBuilder.appendQueryParameter("q", "android");
+        uriBuilder.appendQueryParameter("q", query);
         uriBuilder.appendQueryParameter("maxResults", maxResults);
         uriBuilder.appendQueryParameter("orderBy", orderBy);
-
+        Log.d(TAG, uriBuilder.toString());
         return new BookLoader(this, uriBuilder.toString());
     }
 
@@ -186,7 +189,31 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final SearchView searchView =
+                (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchQuery = query;
+                searchBooks(query);
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -198,5 +225,24 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void searchBooks(String searchQuery) {
+        Bundle bundle = new Bundle();
+        bundle.putString("searchQuery", searchQuery);
+
+        //use the query to search your data somehow
+
+        // Clear the ListView as a new query will be kicked off
+        adapter.clear();
+
+        // Hide the empty state text view as the loading indicator will be displayed
+        emptyStateTextView.setVisibility(View.GONE);
+
+        // Show the loading indicator while new data is being fetched
+        loadingIndicator.setVisibility(View.VISIBLE);
+
+        // Restart the loader to requery as the query settings have been updated
+        getLoaderManager().restartLoader(BOOK_LOADER_ID, bundle, this);
     }
 }

@@ -31,4 +31,6 @@
     <!-- Label for order-by most recent option [CHAR LIMIT=20] -->
     <string name="settings_order_by_relevance_label">Relevance</string>
     <string name="settings_order_by_relevance_value" translatable="false">relevance</string>
+
+    <string name="search_label">Search</string>
 </resources>

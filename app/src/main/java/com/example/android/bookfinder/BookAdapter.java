@@ -83,7 +83,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
         holder.genreView.setText(currentBook.getBookPrice());
 
         //holder.thumbnailView.setImageURI();
-        Picasso.with(getContext()).load(currentBook.getImageUrl()).into(holder.thumbnailView);
+        Picasso.with(getContext()).load(currentBook.getImageUrl()).placeholder(R.drawable.placeholder_book).into(holder.thumbnailView);
 
         // Return the list item view that is now showing the appropriate data
         return listItemView;

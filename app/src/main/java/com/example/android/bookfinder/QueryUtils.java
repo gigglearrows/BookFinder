@@ -179,7 +179,12 @@ public final class QueryUtils {
                 }
 
                 // Extract the value for the key called "smallThumbnail"
-                String imageUrl = bookInfo.getJSONObject("imageLinks").getString("smallThumbnail");
+                String imageUrl = null;
+                try {
+                    imageUrl = bookInfo.getJSONObject("imageLinks").getString("smallThumbnail");
+                } catch (JSONException e) {
+                    Log.i(TAG, "No image for book");
+                }
 
                 // Extract the value for the key called "url"
                 String bookUrl = bookInfo.getString("infoLink");
