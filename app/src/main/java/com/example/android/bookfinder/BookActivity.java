@@ -51,12 +51,9 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
     /**
      * TextView that is displayed when the list is empty + rest of the views
      */
-    @BindView(R.id.empty_view)
-    TextView emptyStateTextView;
-    @BindView(R.id.list)
-    ListView bookListView;
-    @BindView(R.id.loading_indicator)
-    View loadingIndicator;
+    @BindView(R.id.empty_view) TextView emptyStateTextView;
+    @BindView(R.id.list) ListView bookListView;
+    @BindView(R.id.loading_indicator) View loadingIndicator;
     private BookAdapter adapter;
 
     @Override
@@ -157,10 +154,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         Uri.Builder uriBuilder = baseUri.buildUpon();
 
         uriBuilder.appendQueryParameter("q", "android");
-        if (Integer.parseInt(maxResults) <= 40 && Integer.parseInt(maxResults) >= 0) {
-            uriBuilder.appendQueryParameter("maxResults", maxResults);
-        } else
-            uriBuilder.appendQueryParameter("orderBy", orderBy);
+        uriBuilder.appendQueryParameter("maxResults", maxResults);
+        uriBuilder.appendQueryParameter("orderBy", orderBy);
 
         return new BookLoader(this, uriBuilder.toString());
     }

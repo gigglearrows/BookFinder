@@ -2,11 +2,14 @@ package com.example.android.bookfinder;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.Toast;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -14,6 +17,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        setTitle(getString(R.string.settings_title));
     }
 
     public static class BookPreferenceFragment extends PreferenceFragment
@@ -44,6 +48,25 @@ public class SettingsActivity extends AppCompatActivity {
             } else {
                 preference.setSummary(stringValue);
             }
+
+            EditTextPreference editTextPreference=(EditTextPreference) findPreference(getString(R.string.settings_max_results_key));
+            editTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    int val = Integer.parseInt(newValue.toString());
+                    if ((val >= 0) && (val <= 40)) {
+                        Log.d("Preference ","Value saved: " + val);
+                        preference.setSummary(""+val);
+                        return true;
+                    }
+                    else {
+                        // invalid you can show invalid message
+                        Toast.makeText(getActivity(), getString(R.string.invalid_max_results), Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                }
+            });
+
             return true;
         }
 

@@ -6,6 +6,9 @@
     <!-- Error message when there is no internet connectivity [CHAR LIMIT=NONE] -->
     <string name="no_internet_connection">No internet connection.</string>
 
+    <!-- Error message when there is an invalid number as maximum results [CHAR LIMIT=NONE] -->
+    <string name="invalid_max_results">Invalid number! Choose something between 0 and 40</string>
+
     <!-- Settings Menu Item [CHAR LIMIT=NONE] -->
     <string name="settings_menu_item">Settings</string>
     <!-- Settings Activity Title [CHAR LIMIT=NONE] -->
@@ -19,7 +22,7 @@
     <!-- Strings For Order-By Preference [CHAR LIMIT=30] -->
     <string name="settings_order_by_label">Order By</string>
     <string name="settings_order_by_key" translatable="false">order_by</string>
-    <string name="settings_order_by_default" translatable="false">@string/settings_order_by_newest_value</string>
+    <string name="settings_order_by_default" translatable="false">@string/settings_order_by_relevance_value</string>
 
     <!-- Label for order-by magnitude option [CHAR LIMIT=20] -->
     <string name="settings_order_by_newest_label">Newest</string>
