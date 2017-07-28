@@ -154,61 +154,62 @@ public final class QueryUtils {
         List<Book> books = new ArrayList<>();
 
         try {
-
             // Create a JSONObject from the JSON response string
             JSONObject baseJsonResponse = new JSONObject(earthquakeJSON);
 
             // Extract the JSONArray associated with the key called "items",
             // which represents a list of books.
-            JSONArray bookArray = baseJsonResponse.getJSONArray("items");
+            if (baseJsonResponse.has("items")) {
+                JSONArray bookArray = baseJsonResponse.getJSONArray("items");
 
-            // For each book in the bookArray, create a {@link Book} object
-            for (int i = 0; i < bookArray.length(); i++) {
-                JSONObject currentBook = bookArray.getJSONObject(i);
-                JSONObject bookInfo = currentBook.getJSONObject("volumeInfo");
+                // For each book in the bookArray, create a {@link Book} object
+                for (int i = 0; i < bookArray.length(); i++) {
+                    JSONObject currentBook = bookArray.getJSONObject(i);
+                    JSONObject bookInfo = currentBook.getJSONObject("volumeInfo");
 
-                // Extract the value for the key called "title"
-                String title = bookInfo.getString("title");
+                    // Extract the value for the key called "title"
+                    String title = bookInfo.getString("title");
 
-                // Extract the value of the first element in the JSONArray called "authors"
-                String author = "Unknown author";
-                try {
-                    author = bookInfo.getJSONArray("authors").getString(0);
-                } catch (JSONException e) {
-                    Log.i(TAG, "No authors for book");
-                }
-
-                // Extract the value for the key called "smallThumbnail"
-                String imageUrl = null;
-                try {
-                    imageUrl = bookInfo.getJSONObject("imageLinks").getString("smallThumbnail");
-                } catch (JSONException e) {
-                    Log.i(TAG, "No image for book");
-                }
-
-                // Extract the value for the key called "url"
-                String bookUrl = bookInfo.getString("infoLink");
-
-                JSONObject bookPriceInfo = currentBook.getJSONObject("saleInfo");
-
-                String bookPrice = "";
-                try {
-                    if (bookPriceInfo.getString("saleability").equals("FOR_SALE")) {
-                        JSONObject bookRetailPrice = bookPriceInfo.getJSONObject("retailPrice");
-                        bookPrice = bookRetailPrice.getString("amount") + bookRetailPrice.getString("currencyCode");
+                    // Extract the value of the first element in the JSONArray called "authors"
+                    String author;
+                    if (bookInfo.has("authors")) {
+                        author = bookInfo.getJSONArray("authors").getString(0);
                     } else {
-                        bookPrice = "Not for sale";
+                        author = "Unknown author";
                     }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Unable to get JSON objects");
+
+                    // Extract the value for the key called "smallThumbnail"
+                    String imageUrl;
+                    if (bookInfo.has("imageLinks")) {
+                        imageUrl = bookInfo.getJSONObject("imageLinks").getString("smallThumbnail");
+                    } else {
+                        imageUrl = null;
+                    }
+
+                    // Extract the value for the key called "url"
+                    String bookUrl = bookInfo.getString("infoLink");
+
+                    JSONObject bookPriceInfo = currentBook.getJSONObject("saleInfo");
+
+                    String bookPrice = "";
+                    try {
+                        if (bookPriceInfo.getString("saleability").equals("FOR_SALE")) {
+                            JSONObject bookRetailPrice = bookPriceInfo.getJSONObject("retailPrice");
+                            bookPrice = bookRetailPrice.getString("amount") + bookRetailPrice.getString("currencyCode");
+                        } else {
+                            bookPrice = "Not for sale";
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Unable to get JSON objects");
+                    }
+
+                    // Create a new {@link Book} object with the title, author, imageUrl,
+                    // and bookUrl from the JSON response.
+                    Book book = new Book(title, author, imageUrl, bookUrl, bookPrice);
+
+                    // Add the new {@link Book} to the list of books.
+                    books.add(book);
                 }
-
-                // Create a new {@link Book} object with the title, author, imageUrl,
-                // and bookUrl from the JSON response.
-                Book book = new Book(title, author, imageUrl, bookUrl, bookPrice);
-
-                // Add the new {@link Book} to the list of books.
-                books.add(book);
             }
 
         } catch (JSONException e) {

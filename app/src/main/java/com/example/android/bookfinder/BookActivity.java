@@ -83,14 +83,8 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             }
         });
 
-        // Get a reference to the ConnectivityManager to check state of network connectivity
-        ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        // Get details on the currently active default data network
-        NetworkInfo networkInfo = conMgr.getActiveNetworkInfo();
-
         // If there is a network connection, fetch data
-        if (networkInfo != null && networkInfo.isConnected()) {
+        if (checkNetwork()) {
             // Get a reference to the LoaderManager, in order to interact with loaders.
             LoaderManager loaderManager = getLoaderManager();
 
@@ -116,21 +110,30 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             // Clear the ListView as a new query will be kicked off
             adapter.clear();
 
-            // Hide the empty state text view as the loading indicator will be displayed
-            emptyStateTextView.setVisibility(View.GONE);
+            if (checkNetwork()) {
+                // Hide the empty state text view as the loading indicator will be displayed
+                emptyStateTextView.setVisibility(View.GONE);
 
-            // Show the loading indicator while new data is being fetched
-            loadingIndicator.setVisibility(View.VISIBLE);
+                // Show the loading indicator while new data is being fetched
+                loadingIndicator.setVisibility(View.VISIBLE);
 
-            Bundle bundle = new Bundle();
-            if (!searchQuery.isEmpty()) {
-                bundle.putString("searchQuery", searchQuery);
+                Bundle bundle = new Bundle();
+                if (!searchQuery.isEmpty()) {
+                    bundle.putString("searchQuery", searchQuery);
+                } else {
+                    bundle = null;
+                }
+
+                // Restart the loader to requery as the query settings have been updated
+                getLoaderManager().restartLoader(BOOK_LOADER_ID, bundle, this);
             } else {
-                bundle = null;
-            }
+                // First, hide loading indicator so error message will be visible
+                loadingIndicator.setVisibility(View.GONE);
 
-            // Restart the loader to requery as the query settings have been updated
-            getLoaderManager().restartLoader(BOOK_LOADER_ID, bundle, this);
+                // Update empty state with no connection error message
+                emptyStateTextView.setVisibility(View.VISIBLE);
+                emptyStateTextView.setText(R.string.no_internet_connection);
+            }
         }
     }
 
@@ -236,13 +239,34 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
         // Clear the ListView as a new query will be kicked off
         adapter.clear();
 
-        // Hide the empty state text view as the loading indicator will be displayed
-        emptyStateTextView.setVisibility(View.GONE);
+        if (checkNetwork()) {
 
-        // Show the loading indicator while new data is being fetched
-        loadingIndicator.setVisibility(View.VISIBLE);
+            // Hide the empty state text view as the loading indicator will be displayed
+            emptyStateTextView.setVisibility(View.GONE);
 
-        // Restart the loader to requery as the query settings have been updated
-        getLoaderManager().restartLoader(BOOK_LOADER_ID, bundle, this);
+            // Show the loading indicator while new data is being fetched
+            loadingIndicator.setVisibility(View.VISIBLE);
+
+            // Restart the loader to requery as the query settings have been updated
+            getLoaderManager().initLoader(BOOK_LOADER_ID, bundle, this);
+        } else {
+            // First, hide loading indicator so error message will be visible
+            loadingIndicator.setVisibility(View.GONE);
+
+            // Update empty state with no connection error message
+            emptyStateTextView.setVisibility(View.VISIBLE);
+            emptyStateTextView.setText(R.string.no_internet_connection);
+        }
+    }
+
+    private boolean checkNetwork() {
+        // Get a reference to the ConnectivityManager to check state of network connectivity
+        ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Get details on the currently active default data network
+        NetworkInfo networkInfo = conMgr.getActiveNetworkInfo();
+
+        // If there is a network connection, fetch data
+        return (networkInfo != null && networkInfo.isConnected());
     }
 }
