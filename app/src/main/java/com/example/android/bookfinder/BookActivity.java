@@ -248,7 +248,7 @@ public class BookActivity extends AppCompatActivity implements LoaderCallbacks<L
             loadingIndicator.setVisibility(View.VISIBLE);
 
             // Restart the loader to requery as the query settings have been updated
-            getLoaderManager().initLoader(BOOK_LOADER_ID, bundle, this);
+            getLoaderManager().restartLoader(BOOK_LOADER_ID, bundle, this);
         } else {
             // First, hide loading indicator so error message will be visible
             loadingIndicator.setVisibility(View.GONE);

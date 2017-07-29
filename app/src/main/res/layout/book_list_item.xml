@@ -52,22 +52,15 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/book_genre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
+        android:layout_gravity="end|center_vertical"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        android:orientation="vertical">
+        android:textColor="@color/textColorBookTitle"
+        android:textSize="12sp"
+        tools:text="Genre? idk" />
 
-        <TextView
-            android:id="@+id/book_genre"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:textColor="@color/textColorBookTitle"
-            android:textSize="12sp"
-            tools:text="Genre? idk" />
-
-    </LinearLayout>
 </LinearLayout>
